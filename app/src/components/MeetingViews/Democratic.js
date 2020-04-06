@@ -19,13 +19,16 @@ const styles = () =>
 		root :
 		{
 			width          : '100%',
+			flexGrow       : '1',
 			height         : '100%',
 			display        : 'flex',
 			flexDirection  : 'row',
 			flexWrap       : 'wrap',
 			justifyContent : 'center',
 			alignItems     : 'center',
-			alignContent   : 'center'
+			alignContent   : 'center',
+			border         : '2px solid red',
+			gripArea       : 'two'
 		},
 		hiddenToolBar :
 		{
@@ -131,6 +134,7 @@ class Democratic extends React.PureComponent
 			toolbarsVisible,
 			permanentTopBar,
 			classes
+
 		} = this.props;
 
 		const style =

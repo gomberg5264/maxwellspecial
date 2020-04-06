@@ -1,6 +1,7 @@
 const initialState =
 {
 	toolAreaOpen   : false,
+	toolAreaPinned : false,
 	currentToolTab : 'chat', // chat, settings, users
 	unreadMessages : 0,
 	unreadFiles    : 0
@@ -33,6 +34,13 @@ const toolarea = (state = initialState, action) =>
 			const toolAreaOpen = false;
 
 			return { ...state, toolAreaOpen };
+		}
+
+		case 'PIN_TOOL_AREA':
+		{
+			const toolAreaPinned = !state.toolAreaPinned;
+
+			return { ...state, toolAreaPinned };
 		}
 
 		case 'SET_TOOL_TAB':

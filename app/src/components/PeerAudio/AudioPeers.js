@@ -12,7 +12,7 @@ const AudioPeers = (props) =>
 	} = props;
 
 	return (
-		<div data-component='AudioPeers'>
+		<div data-component='AudioPeers' style={{ display: 'none' }}>
 			{
 				micConsumers.map((micConsumer) =>
 				{

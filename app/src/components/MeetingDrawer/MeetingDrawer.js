@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import * as toolareaActions from '../../actions/toolareaActions';
-import { useIntl } from 'react-intl';
+// import { useIntl } from 'react-intl';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
@@ -14,6 +14,10 @@ import ParticipantList from './ParticipantList/ParticipantList';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import IconButton from '@material-ui/core/IconButton';
+import VpnKeyIcon from '@material-ui/icons/VpnKey';
+import ChatIcon from '@material-ui/icons/Chat';
+import AttachFileIcon from '@material-ui/icons/AttachFile';
+import PeopleIcon from '@material-ui/icons/People';
 
 const tabs =
 [
@@ -35,20 +39,30 @@ const styles = (theme) =>
 		appBar :
 		{
 			display       : 'flex',
-			flexDirection : 'row'
+			flexDirection : 'row',
+			position      : 'static'
 		},
 		tabsHeader :
 		{
-			flexGrow : 1
-		}
+			// flexGrow : 1,
+			flexBasis : '100%'
+		},
+
+		tab : {
+			minWidth : '50px',
+			maxWidth : '50px'
+		} 
+
 	});
 
 const MeetingDrawer = (props) =>
 {
-	const intl = useIntl();
+	// const intl = useIntl();
 
 	const {
 		currentToolTab,
+		pinToolArea,
+		toolAreaPinned,
 		unreadMessages,
 		unreadFiles,
 		closeDrawer,
@@ -75,33 +89,53 @@ const MeetingDrawer = (props) =>
 					<Tab
 						label={
 							<Badge color='secondary' badgeContent={unreadMessages}>
+								<ChatIcon/>&nbsp;
+								{/*
 								{intl.formatMessage({
-									id             : 'label.chat',
+									id						 : 'label.chat',
 									defaultMessage : 'Chat'
 								})}
+								*/}
 							</Badge>
-						}
+						} className={classes.tab}
 					/>
 					<Tab
 						label={
 							<Badge color='secondary' badgeContent={unreadFiles}>
+								<AttachFileIcon/>&nbsp;
+								{/*
 								{intl.formatMessage({
-									id             : 'label.filesharing',
+									id						 : 'label.filesharing',
 									defaultMessage : 'File sharing'
 								})}
+								*/}
 							</Badge>
-						}
+						} className={classes.tab} 
 					/>
 					<Tab
-						label={intl.formatMessage({
-							id             : 'label.participants',
-							defaultMessage : 'Participants'
-						})}
+						label={
+							<Badge color='secondary'>
+								<PeopleIcon/>&nbsp;
+								{/*
+							{intl.formatMessage({
+								id						 : 'label.participants',
+								defaultMessage : 'Participants'
+							})}
+							*/}
+							</Badge>
+						} className={classes.tab}
 					/>
 				</Tabs>
-				<IconButton onClick={closeDrawer}>
+				<IconButton onClick={pinToolArea}>
+					{toolAreaPinned === true ?
+						<VpnKeyIcon style={{ fill: 'red' }}/> : 
+						<VpnKeyIcon style={{ fill: 'gray' }}/>
+					}
+				</IconButton>
+				<IconButton onClick={closeDrawer}> 
 					{theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
 				</IconButton>
+
 			</AppBar>
 			{currentToolTab === 'chat' && <Chat />}
 			{currentToolTab === 'files' && <FileSharing />}
@@ -118,17 +152,21 @@ MeetingDrawer.propTypes =
 	unreadFiles    : PropTypes.number.isRequired,
 	closeDrawer    : PropTypes.func.isRequired,
 	classes        : PropTypes.object.isRequired,
-	theme          : PropTypes.object.isRequired
+	theme          : PropTypes.object.isRequired,
+	toolAreaPinned : PropTypes.bool.isRequired,
+	pinToolArea    : PropTypes.func.isRequired
 };
 
 const mapStateToProps = (state) => ({
 	currentToolTab : state.toolarea.currentToolTab,
 	unreadMessages : state.toolarea.unreadMessages,
-	unreadFiles    : state.toolarea.unreadFiles
+	unreadFiles    : state.toolarea.unreadFiles,
+	toolAreaPinned : state.toolarea.toolAreaPinned
 });
 
 const mapDispatchToProps = {
-	setToolTab : toolareaActions.setToolTab
+	setToolTab  : toolareaActions.setToolTab,
+	pinToolArea : toolareaActions.pinToolArea
 };
 
 export default connect(
@@ -141,7 +179,8 @@ export default connect(
 			return (
 				prev.toolarea.currentToolTab === next.toolarea.currentToolTab &&
 				prev.toolarea.unreadMessages === next.toolarea.unreadMessages &&
-				prev.toolarea.unreadFiles === next.toolarea.unreadFiles
+				prev.toolarea.unreadFiles === next.toolarea.unreadFiles &&
+				prev.toolarea.toolAreaPinned === next.toolarea.toolAreaPinned
 			);
 		}
 	}

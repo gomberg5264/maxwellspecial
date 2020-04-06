@@ -12,7 +12,7 @@ import { FormattedMessage } from 'react-intl';
 import CookieConsent from 'react-cookie-consent';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
-import Hidden from '@material-ui/core/Hidden';
+// import Hidden from '@material-ui/core/Hidden';
 import Notifications from './Notifications/Notifications';
 import MeetingDrawer from './MeetingDrawer/MeetingDrawer';
 import Democratic from './MeetingViews/Democratic';
@@ -31,9 +31,12 @@ const styles = (theme) =>
 	({
 		root :
 		{
-			display              : 'flex',
-			width                : '100%',
-			height               : '100%',
+			display              : 'grid',
+			gridTemplateColumns  : 'max-content',
+			gridTemplateRows     : 'max-content',
+			gridTemplateAreas    : '"header header" "one two"',
+			width                : '100vw',
+			height               : '100vh',
 			backgroundColor      : 'var(--background-color)',
 			backgroundImage      : `url(${window.config ? window.config.background : null})`,
 			backgroundAttachment : 'fixed',
@@ -46,20 +49,32 @@ const styles = (theme) =>
 			width                          : '30vw',
 			[theme.breakpoints.down('lg')] :
 			{
-				width : '40vw'
+				width : '30vw'
 			},
 			[theme.breakpoints.down('md')] :
 			{
-				width : '50vw'
+				width : '40vw'
 			},
 			[theme.breakpoints.down('sm')] :
 			{
-				width : '70vw'
+				width : '40vw'
 			},
 			[theme.breakpoints.down('xs')] :
 			{
-				width : '90vw'
-			}
+				width : '40vw'
+			},
+
+			position : 'static',
+			gridArea : 'one'
+			// transition: 'width 450ms cubic-bezier(0.23, 1, 0.32, 1)',
+		},
+
+		drawerPaperClosed :
+		{
+			width 			: '0vw',
+			position	: 'static',
+			gridArea	: 'one'
+			// transition: 'width 450ms cubic-bezier(0.23, 1, 0.32, 1)',
 		}
 	});
 
@@ -142,6 +157,7 @@ class Room extends React.PureComponent
 			browser,
 			advancedMode,
 			toolAreaOpen,
+			toolAreaPinned,
 			toggleToolArea,
 			classes,
 			theme
@@ -152,7 +168,7 @@ class Room extends React.PureComponent
 			filmstrip  : Filmstrip,
 			democratic : Democratic
 		}[room.mode];
-
+		
 		return (
 			<div className={classes.root}>
 				{ !isElectron() &&
@@ -187,28 +203,35 @@ class Room extends React.PureComponent
 					onFullscreen={this.handleToggleFullscreen}
 				/>
 
-				<nav>
-					<Hidden implementation='css'>
-						<SwipeableDrawer
-							variant='temporary'
-							anchor={theme.direction === 'rtl' ? 'right' : 'left'}
-							open={toolAreaOpen}
-							onClose={() => toggleToolArea()}
-							onOpen={() => toggleToolArea()}
-							classes={{
-								paper : classes.drawerPaper
-							}}
-						>
-							<MeetingDrawer closeDrawer={toggleToolArea} />
-						</SwipeableDrawer>
-					</Hidden>
-				</nav>
+				{/* <nav> */}
+				{/* <Hidden implementation='css'>*/}
+
+				<SwipeableDrawer
+					variant='persistent'
+					anchor={theme.direction === 'rtl' ? 'right' : 'left'}
+					BackdropProps={{ invisible: true }}
+					open={toolAreaOpen}
+					onOpen={toggleToolArea}
+					onBackdropClick={!toolAreaPinned ? null : toggleToolArea}
+					onClose={toggleToolArea}
+					classes={{
+						paper : toolAreaOpen ? classes.drawerPaper : classes.drawerPaperClosed
+					}}
+				>
+					<MeetingDrawer closeDrawer={toggleToolArea} />
+				</SwipeableDrawer>
+				{/* </Hidden> */}
+				{/* </nav> */}
 
 				{ browser.platform === 'mobile' && browser.os !== 'ios' &&
 					<WakeLock />
 				}
 
-				<View advancedMode={advancedMode} />
+				<div onClick={!toolAreaPinned && toolAreaOpen ? toggleToolArea : null}>
+					<View 
+						advancedMode={advancedMode}
+					/>
+				</div>
 
 				{ room.lockDialogOpen &&
 					<LockDialog />
@@ -228,6 +251,7 @@ Room.propTypes =
 	browser            : PropTypes.object.isRequired,
 	advancedMode       : PropTypes.bool.isRequired,
 	toolAreaOpen       : PropTypes.bool.isRequired,
+	toolAreaPinned     : PropTypes.bool.isRequired,
 	setToolbarsVisible : PropTypes.func.isRequired,
 	toggleToolArea     : PropTypes.func.isRequired,
 	classes            : PropTypes.object.isRequired,
@@ -236,10 +260,11 @@ Room.propTypes =
 
 const mapStateToProps = (state) =>
 	({
-		room         : state.room,
-		browser      : state.me.browser,
-		advancedMode : state.settings.advancedMode,
-		toolAreaOpen : state.toolarea.toolAreaOpen
+		room           : state.room,
+		browser        : state.me.browser,
+		advancedMode   : state.settings.advancedMode,
+		toolAreaOpen   : state.toolarea.toolAreaOpen,
+		toolAreaPinned : state.toolarea.toolAreaPinned
 	});
 
 const mapDispatchToProps = (dispatch) =>
@@ -252,6 +277,7 @@ const mapDispatchToProps = (dispatch) =>
 		{
 			dispatch(toolareaActions.toggleToolArea());
 		}
+
 	});
 
 export default connect(
@@ -265,7 +291,8 @@ export default connect(
 				prev.room === next.room &&
 				prev.me.browser === next.me.browser &&
 				prev.settings.advancedMode === next.settings.advancedMode &&
-				prev.toolarea.toolAreaOpen === next.toolarea.toolAreaOpen
+				prev.toolarea.toolAreaOpen === next.toolarea.toolAreaOpen &&
+				prev.toolarea.toolAreaPinned === next.toolarea.toolAreaPinned
 			);
 		}
 	}

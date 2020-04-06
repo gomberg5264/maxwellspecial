@@ -28,9 +28,16 @@ import LockIcon from '@material-ui/icons/Lock';
 import LockOpenIcon from '@material-ui/icons/LockOpen';
 import Button from '@material-ui/core/Button';
 import Tooltip from '@material-ui/core/Tooltip';
+import classnames from 'classnames';
 
 const styles = (theme) =>
 	({
+
+		root : {
+			gridArea : 'header'
+			// border: '1px solid green'
+		},
+
 		menuButton :
 		{
 			margin  : 0,
@@ -136,7 +143,8 @@ const TopBar = (props) =>
 		openUsersTab,
 		unread,
 		canLock,
-		classes
+		classes,
+		toolAreaOpen
 	} = props;
 
 	const lockTooltip = room.locked ?
@@ -174,8 +182,11 @@ const TopBar = (props) =>
 
 	return (
 		<AppBar
-			position='fixed'
-			className={room.toolbarsVisible || permanentTopBar ? classes.show : classes.hide}
+			position='static'
+			className={classnames( 
+				classes.root, 
+				room.toolbarsVisible || permanentTopBar ? classes.show : classes.hide
+			)}
 		>
 			<Toolbar>
 				<PulsingBadge
@@ -378,6 +389,7 @@ TopBar.propTypes =
 	setLockDialogOpen  : PropTypes.func.isRequired,
 	toggleToolArea     : PropTypes.func.isRequired,
 	openUsersTab       : PropTypes.func.isRequired,
+	toolAreaOpen       : PropTypes.bool,
 	unread             : PropTypes.number.isRequired,
 	canLock            : PropTypes.bool.isRequired,
 	classes            : PropTypes.object.isRequired,
@@ -397,7 +409,8 @@ const mapStateToProps = (state) =>
 			state.toolarea.unreadFiles,
 		canLock :
 			state.me.roles.some((role) =>
-				state.room.permissionsFromRoles.CHANGE_ROOM_LOCK.includes(role))
+				state.room.permissionsFromRoles.CHANGE_ROOM_LOCK.includes(role)),
+		toolAreaOpen          : state.toolarea.toolAreaOpen
 	});
 
 const mapDispatchToProps = (dispatch) =>
@@ -442,7 +455,8 @@ export default withRoomContext(connect(
 				prev.me.picture === next.me.picture &&
 				prev.me.roles === next.me.roles &&
 				prev.toolarea.unreadMessages === next.toolarea.unreadMessages &&
-				prev.toolarea.unreadFiles === next.toolarea.unreadFiles
+				prev.toolarea.unreadFiles === next.toolarea.unreadFiles,
+				prev.toolarea.toolAreaOpen === next.toolarea.toolAreaOpen
 			);
 		}
 	}

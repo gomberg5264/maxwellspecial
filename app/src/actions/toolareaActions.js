@@ -13,6 +13,11 @@ export const closeToolArea = () =>
 		type : 'CLOSE_TOOL_AREA'
 	});
 
+export const pinToolArea = () =>
+	({
+		type : 'PIN_TOOL_AREA'
+	});
+
 export const setToolTab = (toolTab) =>
 	({
 		type    : 'SET_TOOL_TAB',

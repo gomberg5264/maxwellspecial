@@ -20,7 +20,10 @@ const styles = () =>
 			width               : '100%',
 			display             : 'grid',
 			gridTemplateColumns : '1fr',
-			gridTemplateRows    : '1.6fr minmax(0, 0.4fr)'
+			gridTemplateRows    : '1.6fr minmax(0, 0.4fr)',
+			gridArea            : 'two',
+			border              : '2px solid red'
+
 		},
 		speaker :
 		{
@@ -223,7 +226,7 @@ class Filmstrip extends React.PureComponent
 		};
 
 		return (
-			<div className={classes.root}>
+			<div className={classnames(classes.root)}>
 				<div className={classes.speaker} ref={this.activePeerContainer}>
 					{ peers[activePeerId] &&
 						<SpeakerPeer
